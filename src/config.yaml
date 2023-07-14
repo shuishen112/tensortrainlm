@@ -1,0 +1,18 @@
+program: src/pl_trainer.py
+method: bayes
+metric:
+  goal: minimize
+  name: loss_valid
+parameters:
+  dropout:
+    max: 0.5
+    min: 0.125
+    distribution: uniform
+  rank:
+    max: 20
+    min: 5
+    distribution: int_uniform
+  lr:
+    max: 1
+    min: 0.25
+    distribution: uniform
