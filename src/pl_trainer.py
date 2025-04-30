@@ -94,11 +94,11 @@ if __name__ == "__main__":
     )
     trainer = pl.Trainer(
         logger=wandb_logger,
-        max_epochs=1,
-        gpus=1,
-        limit_train_batches=10,
+        max_epochs=args.epoch,
+        accelerator="gpu",
+        devices=1,
         callbacks=checkpoint_callback,
-        # resume_from_checkpoint="output/RNN/sample-epoch=30-loss_valid=4.72.ckpt",
+        # resume_from_checkpoint="output/RNN/sample-epoch=30-loss_valid=4.72.ckpt", 
         gradient_clip_val=args.clip,
     )
     trainer.fit(
