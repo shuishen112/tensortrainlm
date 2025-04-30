@@ -77,14 +77,18 @@ if __name__ == "__main__":
     tb_logger = pl_loggers.TensorBoardLogger(
         "./lightning_logs/", name=f"{args.cell}_{args.data_name}"
     )
-    wandb_logger = WandbLogger(
-        project=args.project_name,
-        name=f"{args.cell}_{args.data_name}",
-        config=args,
-        anonymous=True,
-    )
-    # Define your gpu here
+    
+    loggers = [tb_logger]
+    if args.use_wandb:
+        wandb_logger = WandbLogger(
+            project=args.project_name,
+            name=f"{args.cell}_{args.data_name}",
+            config=args,
+            anonymous=True,
+        )
+        loggers.append(wandb_logger)
 
+    # Define your gpu here
     checkpoint_callback = ModelCheckpoint(
         monitor="loss_valid",
         dirpath=f"output/{args.cell}_{args.data_name}",
@@ -93,7 +97,7 @@ if __name__ == "__main__":
         mode="min",
     )
     trainer = pl.Trainer(
-        logger=wandb_logger,
+        logger=loggers,
         max_epochs=args.epoch,
         accelerator="gpu",
         devices=1,

@@ -80,6 +80,10 @@ To run the project, use commend `python src/pl_trainer.py --cell=TinyTNLM2 --ran
 To view the result, run the commend `tensorboard --logdir ./lightning_logs/` in
 `./src`
 - wandb
+To enable wandb logging, add the `--use_wandb` flag to your command:
+```bash
+python src/pl_trainer.py --cell=TinyTNLM2 --rank=20 --data_name=ptb --use_wandb
+```
 
 ## Wandb Result
 

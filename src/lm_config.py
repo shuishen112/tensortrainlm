@@ -93,5 +93,12 @@ parser.add_argument(
     default="sgd",
     help="optim method",
 )
+
+parser.add_argument(
+    "--use_wandb",
+    action="store_true",
+    help="whether to use wandb logging",
+)
+
 args = parser.parse_args()
 print(args)

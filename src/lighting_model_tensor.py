@@ -99,6 +99,7 @@ class TensorLightningModule(pl.LightningModule):
         self.dropout = dropout
         self.lr = lr
         self.cell = cell
+        self.num_layers = 5
         # embedding
         self.embedding = nn.Embedding(self.vocab_size, self.rank * self.rank)
         nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
@@ -123,7 +124,7 @@ class TensorLightningModule(pl.LightningModule):
 
     def forward(self, data, hidden):
         embedding = self.dropout(self.embedding(data))
-        output, hidden = self.tnn(embedding, hidden)
+        output, hidden = self.tnn(embedding, hidden)    
         output_embed = self.out_embed(output)
         output = self.out_fc(output_embed)
         return output.view(-1, self.vocab_size), hidden
