@@ -39,6 +39,7 @@ if __name__ == "__main__":
     word_freqs = p.word_freqs
 
     print(len(word_freqs))
+    breakpoint()
 
     # 30 time steps.
     train = Vocab(word_freqs, train_corpus, 31)

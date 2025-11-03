@@ -87,6 +87,91 @@ class TTLMTinyCell(jit.ScriptModule):
         return hidden.squeeze(1)
 
 
+class TensorLightnightModuleClassification(pl.LightningModule):
+    """Tensor module for classification"""
+
+    def __init__(self, vocab_size, rank, dropout, lr, cell, num_classes):
+        super().__init__()
+
+        self.vocab_size = vocab_size
+        self.rank = rank
+        self.dropout = dropout
+        self.lr = lr
+        self.cell = cell
+        self.num_classes = num_classes
+        # embedding
+        self.embedding = nn.Embedding(self.vocab_size, self.rank * self.rank)
+        nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
+
+        if cell == "TinyTNLM":
+            print("cell_name", cell)
+            self.tnn = TensorLayer(TTLMLargeCell, self.rank)
+        elif cell == "TinyTNLM2":
+            self.tnn = TensorLayer(TTLMTinyCell, self.rank)
+
+        self.out_fc = nn.Linear(self.rank, 1)
+        self.sigmoid = nn.Sigmoid()
+
+        # loss funciton
+        self.loss = nn.BCELoss()
+
+        self.dropout = nn.Dropout(self.dropout)
+        self.test_step_outputs = []
+        self.save_hyperparameters()
+
+    def forward(self, data, hidden):
+        embedding = self.dropout(self.embedding(data))
+        output, hidden = self.tnn(embedding, hidden)
+        output = self.sigmoid(self.out_fc(hidden)).squeeze()
+        return output, hidden
+
+    def configure_optimizers(self):
+        if args.optim == "adam":
+            return optim.Adam(self.parameters(), lr=self.lr)
+        elif args.optim == "sgd":
+            return optim.SGD(self.parameters(), lr=self.lr)
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        # y = y.view(-1)
+        batch_size = x.size(0)
+
+        hidden = torch.zeros(batch_size, self.rank).to(self.device)
+
+        output, hidden = self.forward(x, hidden)
+        loss = self.loss(output, y)
+        return {"loss": loss}
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        # y = y.view(-1)
+        batch_size = x.size(0)
+        hidden = torch.zeros(batch_size, self.rank).to(self.device)
+        output, hidden = self.forward(x, hidden)
+
+        loss = self.loss(output, y)
+        self.log("loss_valid", loss, on_step=False, on_epoch=True, prog_bar=True, logger=True)
+        return {"loss_valid": loss}
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        # y = y.view(-1)
+        batch_size = x.size(0)
+        hidden = torch.zeros(batch_size, self.rank).to(self.device)
+        output, hidden = self.forward(x, hidden)
+
+        # convert the output to 0 or 1
+        output = (output > 0.5).float()
+        correct = (output == y).float().sum()
+        self.test_step_outputs.append({"correct": correct, "batch_size": batch_size})
+        return {"correct": correct}
+
+    def on_test_epoch_end(self):
+        correct = sum(output["correct"] for output in self.test_step_outputs)
+        total = sum(output["batch_size"] for output in self.test_step_outputs)
+        accuracy = correct / total
+        self.log("accuracy_test", accuracy)
+
 class TensorLightningModule(pl.LightningModule):
     """Tensor module"""
 
