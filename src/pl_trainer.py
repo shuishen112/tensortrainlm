@@ -62,7 +62,7 @@ if __name__ == "__main__":
             lr=args.lr,
             cell=args.cell,
         )
-    elif args.cell in ["TinyTNLM", "TinyTNLM2"]:
+    elif args.cell in ["tiny", "large"]:
         model = TensorLightningModule(
             vocab_size=vocab_size,
             rank=args.rank,

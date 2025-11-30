@@ -93,5 +93,10 @@ parser.add_argument(
     default="sgd",
     help="optim method",
 )
+parser.add_argument(
+    "--target",
+    default="Class",
+    help="target column name for classification",
+)
 args = parser.parse_args()
 print(args)
