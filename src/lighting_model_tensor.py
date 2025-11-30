@@ -103,10 +103,10 @@ class TensorLightnightModuleClassification(pl.LightningModule):
         self.embedding = nn.Embedding(self.vocab_size, self.rank * self.rank)
         nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
 
-        if cell == "TinyTNLM":
+        if cell == "large":
             print("cell_name", cell)
             self.tnn = TensorLayer(TTLMLargeCell, self.rank)
-        elif cell == "TinyTNLM2":
+        elif cell == "tiny":
             self.tnn = TensorLayer(TTLMTinyCell, self.rank)
 
         self.out_fc = nn.Linear(self.rank, 1)
@@ -188,10 +188,10 @@ class TensorLightningModule(pl.LightningModule):
         self.embedding = nn.Embedding(self.vocab_size, self.rank * self.rank)
         nn.init.uniform_(self.embedding.weight, -0.1, 0.1)
 
-        if cell == "TinyTNLM":
+        if cell == "large":
             print("cell_name", cell)
             self.tnn = TensorLayer(TTLMLargeCell, self.rank)
-        elif cell == "TinyTNLM2":
+        elif cell == "tiny":
             self.tnn = TensorLayer(TTLMTinyCell, self.rank)
 
         self.out_embed = nn.Linear(self.rank, self.rank * self.rank)
