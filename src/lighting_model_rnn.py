@@ -257,6 +257,7 @@ class TextLightningModuleClassification(pl.LightningModule):
         self.loss = nn.BCELoss()
         self.sigmoid = nn.Sigmoid()
         self.dropout = nn.Dropout(self.dropout)
+        self.test_step_outputs = []
         self.save_hyperparameters()
     def forward(self, data, hidden):
         embedding = self.dropout(self.embedding(data))
@@ -286,7 +287,7 @@ class TextLightningModuleClassification(pl.LightningModule):
         x, y = batch
         # y = y.view(-1)
         batch_size = x.size(0)
-        hidden = torch.zeros(batch_size, self.rank).to(self.device)
+        hidden = torch.zeros(batch_size, self.hidden_size).to(self.device)
         output, hidden = self.forward(x, hidden)
         # convert the output to 0 or 1
         output = (output > 0.5).float()
