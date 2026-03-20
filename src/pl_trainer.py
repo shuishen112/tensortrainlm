@@ -38,11 +38,11 @@ if __name__ == "__main__":
 
     word_freqs = p.word_freqs
 
-    print(len(word_freqs))
+    print(f"Vocabulary size: {len(word_freqs)}")
 
-    # 30 time steps.
+    # Sequence length: 30 input steps + 1 target step.
     train = Vocab(word_freqs, train_corpus, 31)
-    print("len train sample", len(train.encoded_list))
+    print(f"Number of training samples: {len(train.encoded_list)}")
 
     valid = Vocab(word_freqs, valid_corpus, 31)
     test = Vocab(word_freqs, test_corpus, 31)
@@ -70,35 +70,31 @@ if __name__ == "__main__":
             cell=args.cell,
         )
 
-    # model = model.load_from_checkpoint(
-    #     "lightning_logs/tnlm/version_1/checkpoints/epoch=49-step=78950.ckpt"
-    # )
 
-    tb_logger = pl_loggers.TensorBoardLogger(
-        "./lightning_logs/", name=f"{args.cell}_{args.data_name}"
-    )
+    run_name = f"{args.cell}_{args.data_name}"
+    tb_logger = pl_loggers.TensorBoardLogger("./lightning_logs/", name=run_name)
     wandb_logger = WandbLogger(
         project=args.project_name,
-        name=f"{args.cell}_{args.data_name}",
+        name=run_name,
         config=args,
         anonymous=True,
     )
-    # Define your gpu here
+    # Configure training on a single GPU.
 
     checkpoint_callback = ModelCheckpoint(
         monitor="loss_valid",
-        dirpath=f"output/{args.cell}_{args.data_name}",
+        dirpath=f"output/{run_name}",
         save_top_k=1,
         filename="sample-{epoch:02d}-{loss_valid:.2f}",
         mode="min",
     )
     trainer = pl.Trainer(
-        logger=wandb_logger,
+        logger=[tb_logger, wandb_logger],
         max_epochs=args.epoch,
         accelerator="gpu",
         devices=1,
-        callbacks=checkpoint_callback,
-        # resume_from_checkpoint="output/RNN/sample-epoch=30-loss_valid=4.72.ckpt", 
+        callbacks=[checkpoint_callback],
+        resume_from_checkpoint=args.checkpoint_path,
         gradient_clip_val=args.clip,
     )
     trainer.fit(
