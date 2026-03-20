@@ -28,19 +28,12 @@ parser.add_argument(
     help="hidden_size",
 )
 
-
 parser.add_argument(
     "--rank",
     default=10,
     type=int,
     help="rank of tensor train",
 )
-
-# parser.add_argument(
-#     "--activation",
-#     default="nn.Tanh",
-#     help="the activation in TNLM[nn.LeakyReLU,nn.RReLU,nn.ReLU,nn.ReLU6,nn.SELU,nn.GELU]",
-# )
 
 
 parser.add_argument(
@@ -97,6 +90,13 @@ parser.add_argument(
     "--target",
     default="Class",
     help="target column name for classification",
+)
+
+# checkpoint path
+parser.add_argument(
+    "--checkpoint_path",
+    default=None,
+    help="checkpoint path",
 )
 args = parser.parse_args()
 print(args)
